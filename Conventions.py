@@ -28,7 +28,33 @@ class NormalBidding(Convention):
 	maxOpenPts = 15
 	minRespPts = 7
 	maxRespPts = 11
+	ntRespPts = 12
 	
+	def interpretPsBid(self, psBid, isPOpener, psHand):
+		if isPOpener and psHand.info["maxPoints"] == 0:
+			if psBid[1] == 1 and psBid[0] != 5:
+				psHand.info["maxPoints"] = self.maxOpenPts
+				psHand.info["minPoints"] = self.minOpenPts
+				psHand.info["bestSuit"] = psBid[0]
+				psHand.info["bestSuitLength"] = 4
+				print "Partner opened Normal Bidding"
+				return True
+			else:
+				return False
+		elif (not isPOpener) and psHand.info["maxPoints"] ==0:
+			if psBid[0] != 5:
+				psHand.info["maxPoints"] = self.maxRespPts
+				psHand.info["minPoints"] = self.minRespPts
+				psHand.info["bestSuit"] = psBid[0]
+				psHand.info["bestSuitLength"] = 4
+				print "Partner responded Normal Bidding"
+				return True
+			if psBid[0] == 5:
+				psHand.info["maxPoints"] = 20	#placeholder
+				psHand.info["minPoints"] = self.ntRespPts
+				print "Parnter responded NT Normal Bidding"
+				return True
+		
 	def getOpenersBid(self, bidLevel, psHand):
 		if len(self.myBids) == 0:
 			return self.getOpeningBid()

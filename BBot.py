@@ -4,9 +4,17 @@ from Conventions import *
 class PartnersHandInfo(object):
 	# Contains information known about a BidBot partner's hand
 	# Store information in a dict with keys taken from a smallish list of useful info
+	# Use a dict so it's iterable
 	
 	def __init__(self):
 		self.info = {}
+		self.info["maxPoints"] = 0
+		self.info["minPoints"] = 0
+		self.info["bestSuit"] = 0
+		self.info["bestSuitLength"] = 0
+		self.info["secondSuit"] = 0
+		self.info["thirdSuit"] = 0
+		self.info["singletonSuit"] = 0
 	
 	
 class Table(object):
@@ -30,11 +38,10 @@ class Table(object):
 			pNum = (i % 4) # ensures correct looping of players
 			i += 1
 			currentBid = self.players[pNum].bid(self.bidLevel)
-			if (currentBid != (0,0) and (self.players[pNum].isOpener)):
-				self.partners[pNum].isOpener = False
+			
 			if currentBid != (0,0):
 				self.bidLevel = currentBid
-			self.partners[pNum].addPartnersBid(currentBid, self.players[pNum].isOpener)
+				self.partners[pNum].addPartnersBid(currentBid, self.players[pNum].isOpener)
 			print self.players[pNum].hand.cards
 			print "Bidding currentBid is: ", currentBid, ", and isOpener = ", self.players[pNum].isOpener
 			print ""
@@ -73,6 +80,11 @@ class BidBot(object):
 	def addPartnersBid(self, pBid, isPOpener):
 		if isPOpener and pBid != (0,0):
 			self.isOpener = False
+		for conv in self.conventions:
+			# evaluates bids from possible list of conventions, updating pshandinfo
+			if (not conv.interpretPsBid(pBid, isPOpener, self.psHand) ):
+				# removes conventions if bidding has ruled them out (ie. if opening bid is 1s, the Weak2s convention returns False)
+				self.conventions.remove(conv)
 			
 
 t = Table()
