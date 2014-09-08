@@ -29,11 +29,12 @@ class Table(object):
 		while (True):
 			pNum = (i % 4) # ensures correct looping of players
 			i += 1
-			currentBid = self.players[pNum].bid()
+			currentBid = self.players[pNum].bid(self.bidLevel)
 			if (currentBid != (0,0) and (self.players[pNum].isOpener)):
 				self.partners[pNum].isOpener = False
+			if currentBid != (0,0):
+				self.bidLevel = currentBid
 			self.partners[pNum].addPartnersBid(currentBid, self.players[pNum].isOpener)
-			self.bidLevel = currentBid
 			print self.players[pNum].hand.cards
 			print "Bidding currentBid is: ", currentBid, ", and isOpener = ", self.players[pNum].isOpener
 			print ""
@@ -56,13 +57,15 @@ class BidBot(object):
 		self.isOpener = True
 		self.weak2s = Weak2s(self.hand)
 		self.strong2C = Strong2C(self.hand)
+		self.normalBidding = NormalBidding(self.hand)
 		self.conventions = []
-		self.conventions.append(self.weak2s)
-		self.conventions.append(self.strong2C)
+		self.conventions.append(self.normalBidding)
+		#self.conventions.append(self.weak2s)
+		#self.conventions.append(self.strong2C)
 				
-	def bid(self):
+	def bid(self, bidLevel):
 		for conv in self.conventions:
-			convBid = conv.getBid( (0,0), self.isOpener )
+			convBid = conv.getBid(bidLevel, self.isOpener, self.psHand )
 			if convBid != (0,0):
 				return convBid
 		return (0,0)
