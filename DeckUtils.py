@@ -1,4 +1,8 @@
 from random import randint
+from collections import namedtuple
+
+# makes a data structure for bid tuples.
+Bid = namedtuple('Bid', 'suit level')
 
 class BidHistory(object):
 	# Contains history of all bidding so far at the Table
@@ -101,7 +105,7 @@ class Hand(object):
 					# if two suits have same length AND same points it chooses the higher suit (ie. favours majors)
 					maxLength = len(self.cards[sInd])
 					longSuit = sInd
-		return (longSuit, maxLength)
+		return Bid(longSuit, maxLength)
 		
 	def getSuitLength(self, sInd):
 		return len(self.cards[sInd])

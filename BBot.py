@@ -1,4 +1,3 @@
-from DeckUtils import *
 from Conventions import *		
 	
 class PartnersHandInfo(object):
@@ -19,7 +18,7 @@ class PartnersHandInfo(object):
 	
 class Table(object):
 	# Contains bidding history information and player positions
-	bidLevel = (0,0)
+	bidLevel = Bid(0,0)
 			
 	def __init__(self):
 		self.deck = Deck()
@@ -39,7 +38,7 @@ class Table(object):
 			i += 1
 			currentBid = self.players[pNum].bid(self.bidLevel)
 			
-			if currentBid != (0,0):
+			if currentBid.level != 0:
 				self.bidLevel = currentBid
 				self.partners[pNum].addPartnersBid(currentBid, self.players[pNum].isOpener)
 			print self.players[pNum].hand.cards
@@ -73,12 +72,12 @@ class BidBot(object):
 	def bid(self, bidLevel):
 		for conv in self.conventions:
 			convBid = conv.getBid(bidLevel, self.isOpener, self.psHand )
-			if convBid != (0,0):
+			if convBid.level != 0:
 				return convBid
-		return (0,0)
+		return Bid(0,0)
 	
 	def addPartnersBid(self, pBid, isPOpener):
-		if isPOpener and pBid != (0,0):
+		if isPOpener and pBid.level != 0:
 			self.isOpener = False
 		for conv in self.conventions:
 			# evaluates bids from possible list of conventions, updating pshandinfo

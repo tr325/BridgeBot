@@ -1,3 +1,5 @@
+from DeckUtils import *
+
 class Convention(object):
 	# Abstract parent class for all Convention objects
 		
@@ -12,15 +14,15 @@ class Convention(object):
 			bid = self.getOpenersBid(bidLevel, psHand)
 		else:
 			bid = self.getRespondersBid(bidLevel, psHand)
-		if bid != (0,0):
+		if bid.level != 0:
 			self.myBids.append(bid)
 		return bid
 	
 	def nextBidLevel(self, bidLevel, suit):
-		if bidLevel[0] < suit:
-			return bidLevel[1]
+		if bidLevel.suit < suit:
+			return bidLevel.level
 		else:
-			return bidLevel[1] + 1
+			return bidLevel.level + 1
 
 class NormalBidding(Convention):
 	
@@ -32,52 +34,52 @@ class NormalBidding(Convention):
 	
 	def interpretPsBid(self, psBid, isPOpener, psHand):
 		if isPOpener and psHand.info["maxPoints"] == 0:
-			if psBid[1] == 1 and psBid[0] != 5:
+			if psBid.level == 1 and psBid.suit != 5:
 				psHand.info["maxPoints"] = self.maxOpenPts
 				psHand.info["minPoints"] = self.minOpenPts
-				psHand.info["bestSuit"] = psBid[0]
+				psHand.info["bestSuit"] = psBid.suit
 				psHand.info["bestSuitLength"] = 4
 				print "Partner opened Normal Bidding"
 				return True
 			else:
 				return False
 		elif (not isPOpener) and psHand.info["maxPoints"] ==0:
-			if psBid[0] != 5:
+			if psBid.suit != 5:
 				psHand.info["maxPoints"] = self.maxRespPts
 				psHand.info["minPoints"] = self.minRespPts
-				psHand.info["bestSuit"] = psBid[0]
+				psHand.info["bestSuit"] = psBid.suit
 				psHand.info["bestSuitLength"] = 4
 				print "Partner responded Normal Bidding"
 				return True
-			if psBid[0] == 5:
+			if psBid.suit == 5:
 				psHand.info["maxPoints"] = 20	#placeholder
 				psHand.info["minPoints"] = self.ntRespPts
-				print "Parnter responded NT Normal Bidding"
+				print "Partner responded NT Normal Bidding"
 				return True
 		
 	def getOpenersBid(self, bidLevel, psHand):
 		if len(self.myBids) == 0:
 			return self.getOpeningBid()
 		else:
-			return (0,0)
+			return Bid(0,0)
 	
 	def	getOpeningBid(self):
 		if self.hand.getTotalPoints() >= self.minOpenPts and self.hand.getTotalPoints() <= self.maxOpenPts:
-			return (self.hand.findLength()[0], 1)
+			return Bid(self.hand.findLength().suit, 1)
 		else:
-			return (0,0)
+			return Bid(0,0)
 	
 	def getRespondersBid(self, bidLevel, psHand):
 		if len(self.myBids) == 0:
 			return self.getRespondingBid(bidLevel)
 		else:
-			return (0,0)
+			return Bid(0,0)
 			
 	def getRespondingBid(self, bidLevel):
 		if self.hand.getTotalPoints() >= self.minRespPts and self.hand.getTotalPoints() <= self.maxRespPts:
-			return (self.hand.findLength()[0], self.nextBidLevel(bidLevel, self.hand.findLength()[0]))
+			return Bid(self.hand.findLength().suit, self.nextBidLevel(bidLevel, self.hand.findLength().suit))
 		else:
-			return (0,0)
+			return Bid(0,0)
 
 
 #########  These are old! Update from normalBidding convention for a template of how the bidding will work!  ############### 
