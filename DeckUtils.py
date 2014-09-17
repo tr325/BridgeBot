@@ -14,11 +14,9 @@ class BidHistory(object):
 		pass
 	
 	def isBiddingFinished(self):
-		# REALLY FIX THIS LATER
-		# returns True when three passes in a row occur
+		#TRUST IT IT WORKS
 		if self.numBids >= 4:
 			for i in range(0,3):
-				#TRUST IT IT WORKS 
 				if self.pastBids[self.bidPosition -1 - i][len(self.pastBids[self.bidPosition -1- i]) - 1] != (0, 0):
 					break
 			else:
@@ -32,6 +30,23 @@ class BidHistory(object):
 		self.pastBids[self.bidPosition].append(newBid)
 		self.bidPosition = (self.bidPosition + 1) % 4
 		self.numBids += 1
+		
+	def printBidding(self):
+		# Prints the bidding in a readable form
+		suitText = ["C  ", "D  ", "H  ", "S  ", "NT "]
+		while True:
+			for p in self.pastBids:
+				if len(p) != 0:
+					bid = p.pop(0)
+					if bid.level == 0:
+						print "PASS",
+					else:
+						text = str(bid.level) + str(suitText[bid.suit - 1])
+						print text,						
+				else:
+					return
+			print ""
+			
 
 		
 class Deck(object):
@@ -91,8 +106,8 @@ class Hand(object):
 				points += self.getCardPoints(c)
 		return points
 	
-	def findLength(self):
-		# Returns longest suit and number in that suit. If two suits have same length, returns stronger of the two
+	def findBestSuit(self):
+		# Returns longest suit and number of cards in that suit. If two suits have same length, returns stronger of the two
 		maxLength = 0
 		longSuit = 0
 		for sInd in self.cards:
@@ -105,8 +120,26 @@ class Hand(object):
 					# if two suits have same length AND same points it chooses the higher suit (ie. favours majors)
 					maxLength = len(self.cards[sInd])
 					longSuit = sInd
-		return Bid(longSuit, maxLength)
+		return longSuit, maxLength
 		
+	def findSecondSuit(self):
+		# returns second longest(/best) suit and ..... (above)
+		bestSuit = self.findBestSuit()[0]
+		secondSuit = 0
+		length = 0
+		for sInd in self.cards:
+			if sInd != bestSuit:
+				if len(self.cards[sInd]) > length:
+					length = len(self.cards[sInd])
+					secondSuit = sInd
+				if len(self.cards[sInd]) == length:
+					if (bestSuit != 0) and (self.getSuitPoints(sInd) >= self.getSuitPoints(bestSuit)):
+						# chooses stronger suit (by points) of two of the same length
+						# if two suits have same length AND same points it chooses the higher suit (ie. favours majors)
+						length = len(self.cards[sInd])
+						secondSuit = sInd
+		return secondSuit, length
+	
 	def getSuitLength(self, sInd):
 		return len(self.cards[sInd])
 	

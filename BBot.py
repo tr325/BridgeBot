@@ -7,6 +7,7 @@ class PartnersHandInfo(object):
 	
 	def __init__(self):
 		self.info = {}
+		self.info["numBids"] = 0
 		self.info["maxPoints"] = 0
 		self.info["minPoints"] = 0
 		self.info["bestSuit"] = 0
@@ -41,12 +42,15 @@ class Table(object):
 			if currentBid.level != 0:
 				self.bidLevel = currentBid
 				self.partners[pNum].addPartnersBid(currentBid, self.players[pNum].isOpener)
-			print self.players[pNum].hand.cards
-			print "Bidding currentBid is: ", currentBid, ", and isOpener = ", self.players[pNum].isOpener
-			print ""
+			#print self.players[pNum].hand.cards
+			#print currentBid
+			#print ""
 			self.bidHist.addBid(currentBid)
 			if self.bidHist.isBiddingFinished():
-				print self.bidHist.pastBids
+				for i in range(0,4):
+					print self.players[i].hand.cards
+				self.bidHist.printBidding()
+				
 				break
 
 class BidBot(object):
