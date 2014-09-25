@@ -8,6 +8,7 @@ class PartnersHandInfo(object):
 	def __init__(self):
 		self.info = {}
 		self.info["numBids"] = 0
+		self.info["fitSuit"] = 0
 		self.info["maxPoints"] = 0
 		self.info["minPoints"] = 0
 		self.info["bestSuit"] = 0
@@ -66,9 +67,12 @@ class BidBot(object):
 		self.psHand = PartnersHandInfo()
 		self.isOpener = True
 		self.weak2s = Weak2s(self.hand)
-		self.strong2C = Strong2C(self.hand)
+		self.strong2C = Strong2C(self.hand)		
+		self.losingTrickCount = LosingTrickCount(self.hand)
 		self.normalBidding = NormalBidding(self.hand)
+
 		self.conventions = []
+		self.conventions.append(self.losingTrickCount)
 		self.conventions.append(self.normalBidding)
 		#self.conventions.append(self.weak2s)
 		#self.conventions.append(self.strong2C)

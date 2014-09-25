@@ -23,7 +23,68 @@ class Convention(object):
 			return bidLevel.level
 		else:
 			return bidLevel.level + 1
-
+			
+class LosingTrickCount(Convention):
+	
+	pLosingCount = 0
+	
+	def interpretPsBid(self, bidLevel, isPOpener, psHand):
+		if self.hasFoundFit(bidLevel, psHand) and bidLevel.suit == psHand.info["fitSuit"]:
+			if isPOpener:
+				# assumes 9 losers in this hand
+				self.pLosingCount = 18 - psBid.level - 9
+			else: 
+				# assumes 7 losers in this hand
+				self.pLosingCount = 18 - psBid.level - 7
+			return True
+		else:
+			return True
+	
+	def hasFoundFit(self, psBid, psHand):
+		if psHand.info["fitSuit"] != 0:
+			return True
+		elif len(self.myBids) != 0 and psBid.suit == self.myBids[len(self.myBids) - 1]:
+			psHand.info["fitSuit"] == psBid.suit
+			return True
+		else:
+			return False
+	
+	def countLosingTricks(self):
+		count = 0
+		hCards = ["A", "K", "Q"]
+		for sInd in self.hand.cards:
+			x = min(3, len(self.hand.cards[sInd]))
+			print "x = ", x
+			hC = hCards[0:x]
+			print "hC = ", hC
+			for c in self.hand.cards[sInd]:
+				if c in hC:
+					x = x - 1
+			count += x
+			print "count = ", count
+		print "LTCount = ", count
+		return count
+		
+	def getBid(self, bidLevel, isPOpener, psHand):
+		if self.hasFoundFit(bidLevel, psHand):
+			myLTs = self.countLosingTricks()
+			if self.pLosingCount == 0:
+				if isPOpener:
+					self.pLosingCount = 7
+				else:
+					self.pLosingCount = 9
+			maxBidLevel = 18 - myLTs - self.pLosingCount
+			if maxBidLevel >= self.nextBidLevel(bidLevel, psHand.info["fitSuit"]):
+				self.myBids.append(Bid(psHand.info["fitSuit"], maxBidLevel))
+				return Bid(psHand.info["fitSuit"], maxBidLevel)
+			else:
+				self.myBids.append(Bid(0,0))
+				return Bid(0,0)
+		else:
+			self.myBids.append(Bid(0,0))
+			return Bid(0,0)
+				
+		
 class NormalBidding(Convention):
 	
 	minOpenPts = 13
@@ -74,19 +135,13 @@ class NormalBidding(Convention):
 	def getOpenersBid(self, bidLevel, psHand):
 		if len(self.myBids) == 0:
 			return self.getFirstOBid()
-		elif len(self.myBids) ==1:
+		elif len(self.myBids) == 1:
 			return self.getSecondOBid(bidLevel, psHand)
 		else:
 			return Bid(0,0)
 		
 	def getSecondOBid(self, bidLevel, psHand):
-		if psHand.info["bestSuit"] == self.myBids[0].suit:
-			pPoints = (psHand.info["minPoints"] + psHand.info["maxPoints"])/2.0
-			if (self.hand.getTotalPoints() + pPoints >= 24):
-				return Bid(self.myBids[0].suit, self.nextBidLevel(bidLevel, self.myBids[0].suit))
-			else:
-				return Bid(0,0)
-		elif psHand.info["bestSuit"] != 0:
+		if psHand.info["bestSuit"] != 0:
 			if self.hand.findBestSuit()[1] >= 6:
 				return Bid(self.myBids[0].suit, self.nextBidLevel(bidLevel, self.myBids[0].suit))
 			elif self.hand.findSecondSuit()[0] != 0:
@@ -94,7 +149,9 @@ class NormalBidding(Convention):
 			elif self.hand.getSuitLength(psHand.info["bestSuit"]) == 3:
 				return Bid(0,0)
 			else:
-				return Bid(5, self.nextBidLevel(bidLevel, 5)) 
+				return Bid(5, self.nextBidLevel(bidLevel, 5))
+		else:
+			return Bid(0,0)
 				
 	def	getFirstOBid(self):
 		if self.hand.getTotalPoints() >= self.minOpenPts and self.hand.getTotalPoints() <= self.maxOpenPts:
@@ -104,14 +161,16 @@ class NormalBidding(Convention):
 	
 	def getRespondersBid(self, bidLevel, psHand):
 		if len(self.myBids) == 0:
-			return self.getFirstRBid(bidLevel)
+			return self.getFirstRBid(bidLevel, psHand)
 		elif len(self.myBids) == 1:
 			return self.getSecondRBid(bidLevel, psHand)
 		else:
 			return Bid(0,0)
 			
-	def getFirstRBid(self, bidLevel):
+	def getFirstRBid(self, bidLevel, psHand):
 		if self.hand.getTotalPoints() >= self.minRespPts and self.hand.getTotalPoints() <= self.maxRespPts:
+			if self.hand.findBestSuit()[0] == psHand.info["bestSuit"]:
+				psHand.info["fitSuit"] = self.hand.findBestSuit()[0]
 			return Bid(self.hand.findBestSuit()[0], self.nextBidLevel(bidLevel, self.hand.findBestSuit()[0]))
 		elif self.hand.getTotalPoints() >= self.ntRespPts:
 			return Bid(5, self.nextBidLevel(bidLevel, 5))
@@ -119,6 +178,9 @@ class NormalBidding(Convention):
 			return Bid(0,0)
 	
 	def getSecondRBid(self, bidLevel, psHand):
+		return Bid(0,0)
+		
+	def interpretFurtherBids(self):
 		return Bid(0,0)
 
 
