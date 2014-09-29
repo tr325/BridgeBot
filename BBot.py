@@ -1,11 +1,21 @@
-from Conventions import *		
+from DeckUtils import Deck
+from DeckUtils import Hand
+from DeckUtils import Bid
+from DeckUtils import BidHistory
+from Conventions import Convention
+from Conventions import LosingTrickCount
+from Conventions import NormalBidding
+
 	
 class PartnersHandInfo(object):
+	"""Class for storing known information about partner's hand."""
 	# Contains information known about a BidBot partner's hand
-	# Store information in a dict with keys taken from a smallish list of useful info
+	# Store information in a dict with keys taken from a smallish 
+	# list of useful info
 	# Use a dict so it's iterable
 	
 	def __init__(self):
+		"""Initialise the PartnersHandInfo object."""
 		self.info = {}
 		self.info["numBids"] = 0
 		self.info["fitSuit"] = 0
@@ -19,10 +29,11 @@ class PartnersHandInfo(object):
 	
 	
 class Table(object):
-	# Contains bidding history information and player positions
+	"""Contains player positions and bidding order."""
 	bidLevel = Bid(0,0)
 			
 	def __init__(self):
+		"""Initialise the Table object."""
 		self.deck = Deck()
 		self.bidHist = BidHistory()
 		self.deck.deal()
@@ -34,6 +45,7 @@ class Table(object):
 		self.partners = [self.south, self.west, self.north, self.east]
 	
 	def bidding(self):
+		"""Gets the bidding for the table."""
 		i = 0
 		while (True):
 			pNum = (i % 4) # ensures correct looping of players
@@ -42,7 +54,8 @@ class Table(object):
 			
 			if currentBid.level != 0:
 				self.bidLevel = currentBid
-				self.partners[pNum].addPartnersBid(currentBid, self.players[pNum].isOpener)
+				self.partners[pNum].addPartnersBid(currentBid, 
+				                                   self.players[pNum].isOpener)
 			#print self.players[pNum].hand.cards
 			#print currentBid
 			#print ""
@@ -55,7 +68,7 @@ class Table(object):
 				break
 
 class BidBot(object):
-	# Carries out the bidding for a hand.
+	"""Class to carry out the bidding for a hand."""
 	
 	########  Should contain: #######
 	# List of convention objects (populated in __init__)
@@ -63,11 +76,10 @@ class BidBot(object):
 	# knowledge of opener/responder (in __init__)
 	
 	def __init__(self, hand):
+		"""Initialise the hand with known conventions."""
 		self.hand = hand
 		self.psHand = PartnersHandInfo()
-		self.isOpener = True
-		self.weak2s = Weak2s(self.hand)
-		self.strong2C = Strong2C(self.hand)		
+		self.isOpener = True		
 		self.losingTrickCount = LosingTrickCount(self.hand)
 		self.normalBidding = NormalBidding(self.hand)
 
@@ -78,6 +90,7 @@ class BidBot(object):
 		#self.conventions.append(self.strong2C)
 				
 	def bid(self, bidLevel):
+		"""Return the bid from this player."""
 		for conv in self.conventions:
 			convBid = conv.getBid(bidLevel, self.isOpener, self.psHand )
 			if convBid.level != 0:
@@ -85,12 +98,15 @@ class BidBot(object):
 		return Bid(0,0)
 	
 	def addPartnersBid(self, pBid, isPOpener):
+		"""Adds information from partner's bid."""
 		if isPOpener and pBid.level != 0:
 			self.isOpener = False
 		for conv in self.conventions:
-			# evaluates bids from possible list of conventions, updating pshandinfo
+			# evaluates bids from possible list of conventions,
+			# updating pshandinfo
 			if (not conv.interpretPsBid(pBid, isPOpener, self.psHand) ):
-				# removes conventions if bidding has ruled them out (ie. if opening bid is 1s, the Weak2s convention returns False)
+				# removes conventions if bidding has ruled them out 
+				#(ie. if opening bid is 1s, the Weak2s convention returns False)
 				self.conventions.remove(conv)
 			
 
