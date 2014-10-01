@@ -43,6 +43,8 @@ class Table(object):
 		self.west = BidBot(self.deck.west)
 		self.players = [self.north, self.east, self.south, self.west]	
 		self.partners = [self.south, self.west, self.north, self.east]
+		for i in range(0,4):
+			print self.players[i].hand.cards, self.players[i].hand.getTotalPoints()
 	
 	def bidding(self):
 		"""Gets the bidding for the table."""
@@ -50,21 +52,20 @@ class Table(object):
 		while (True):
 			pNum = (i % 4) # ensures correct looping of players
 			i += 1
+			raw_input("")
 			currentBid = self.players[pNum].bid(self.bidLevel)
-			
+			print "Player ", pNum, ": ", currentBid
+			print ""
 			if currentBid.level != 0:
 				self.bidLevel = currentBid
 				self.partners[pNum].addPartnersBid(currentBid, 
-				                                   self.players[pNum].isOpener)
+				                           self.players[pNum].isOpener)
 			#print self.players[pNum].hand.cards
 			#print currentBid
 			#print ""
 			self.bidHist.addBid(currentBid)
 			if self.bidHist.isBiddingFinished():
-				for i in range(0,4):
-					print self.players[i].hand.cards
 				self.bidHist.printBidding()
-				
 				break
 
 class BidBot(object):
@@ -79,26 +80,29 @@ class BidBot(object):
 		"""Initialise the hand with known conventions."""
 		self.hand = hand
 		self.psHand = PartnersHandInfo()
-		self.isOpener = True		
+		self.isOpener = True
+		self.pPreviousBid = Bid(0,0)		
 		self.losingTrickCount = LosingTrickCount(self.hand)
 		self.normalBidding = NormalBidding(self.hand)
-
 		self.conventions = []
-		self.conventions.append(self.losingTrickCount)
-		self.conventions.append(self.normalBidding)
 		#self.conventions.append(self.weak2s)
 		#self.conventions.append(self.strong2C)
+		self.conventions.append(self.normalBidding)
+		#self.conventions.append(self.losingTrickCount)
+
 				
 	def bid(self, bidLevel):
 		"""Return the bid from this player."""
 		for conv in self.conventions:
-			convBid = conv.getBid(bidLevel, self.isOpener, self.psHand )
+			convBid = conv.getBid(self.pPreviousBid, bidLevel, 
+								  self.isOpener, self.psHand)
 			if convBid.level != 0:
 				return convBid
 		return Bid(0,0)
 	
 	def addPartnersBid(self, pBid, isPOpener):
 		"""Adds information from partner's bid."""
+		self.pPreviousBid = pBid
 		if isPOpener and pBid.level != 0:
 			self.isOpener = False
 		for conv in self.conventions:

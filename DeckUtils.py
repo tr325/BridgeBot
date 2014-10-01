@@ -90,6 +90,7 @@ class Deck(object):
 		self.dealHand(self.west)
 		
 		
+		
 class Hand(object):
 	"""Object for a single hand of cards, with methods for analysis of that
 	hand (ie. points counting, length, etc).
@@ -135,7 +136,10 @@ class Hand(object):
 		return longSuit, maxLength
 		
 	def findSecondSuit(self):
-		"""Return the second best (biddable) suit and its length."""
+		"""Return the second best (biddable) suit and its length.
+		
+		If no second biddable suit exists, returns (0,4)
+		"""
 		bestSuit = self.findBestSuit()[0]
 		secondSuit = 0
 		length = 4
@@ -158,7 +162,10 @@ class Hand(object):
 	
 	def getSuitLength(self, sInd):
 		"""Return the number of cards in a suit."""
-		return len(self.cards[sInd])
+		if sInd == 0:
+			return 0  	# safeguard against checking suits p hasn't bid
+		else:
+			return len(self.cards[sInd])
 	
 	def getSuitPoints(self, sInd):
 		"""Return the number of points in a suit."""
