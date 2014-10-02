@@ -54,11 +54,6 @@ class BidHistory(object):
 		
 class Deck(object):
 	"""Class containing a deck of cards, and methods to deal hands."""	
-	spades = ["A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"]
-	hearts = ["A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"]
-	diamonds =["A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"]
-	clubs = ["A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"]
-	deck = {4: spades, 3: hearts, 2: diamonds, 1: clubs}
 	
 	def __init__(self):
 		"""Initialise the deck (with four Hand objects)."""
@@ -66,6 +61,16 @@ class Deck(object):
 		self.east = Hand()
 		self.west = Hand()
 		self.south = Hand()
+		self.spades = ["A", "K", "Q", "J", "10", "9", "8", "7", "6",
+					   "5", "4", "3", "2"]
+		self.hearts = ["A", "K", "Q", "J", "10", "9", "8", "7", "6",
+					   "5", "4", "3", "2"]
+		self.diamonds =["A", "K", "Q", "J", "10", "9", "8", "7", "6",
+					    "5", "4", "3", "2"]
+		self.clubs = ["A", "K", "Q", "J", "10", "9", "8", "7", "6",
+					  "5", "4", "3", "2"]
+		self.deck = {4: self.spades, 3: self.hearts, 2: self.diamonds,
+					 1: self.clubs}
 
 	def dealHand(self, hand):
 		"""Deal a hand from the (remaining) cards in the deck."""
