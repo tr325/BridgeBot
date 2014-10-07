@@ -26,8 +26,8 @@ class PartnersHandInfo(object):
 		self.info["secondSuit"] = 0
 		self.info["thirdSuit"] = 0
 		self.info["singletonSuit"] = 0
-	
-	
+
+
 class Table(object):
 	"""Contains player positions and bidding order."""
 	bidLevel = Bid(0,0)
@@ -114,8 +114,8 @@ class BidBot(object):
 				self.conventions.remove(conv)
 			
 
-t = Table()
-t.bidding()
+#t = Table()
+#t.bidding()
 
 
 

@@ -37,7 +37,7 @@ class Convention(object):
 		else:
 			return bidLevel.level + 1
 	
-	def hasFoundFit(self, psBid, psHand):
+	def hasFoundFit(self, psHand):
 		"""Check whether a fit has been found."""
 		#print "checking for fit"
 		if psHand.info["fitSuit"] != 0:
@@ -80,7 +80,7 @@ class LosingTrickCount(Convention):
 	
 	def interpretPsBid(self, bidLevel, isPOpener, psHand):
 		"""Interpret partner's losing trick count bid."""
-		fitFound = self.hasFoundFit(bidLevel, psHand)
+		fitFound = self.hasFoundFit(psHand)
 		if (fitFound and bidLevel.suit == psHand.info["fitSuit"] and 
 		        (not self.pHasBidLTC)):
 		   	if (not self.pHasBidLTC) and self.pLosingCount != 0:
@@ -114,7 +114,7 @@ class LosingTrickCount(Convention):
 		
 		Overrides the parent class method.
 		"""
-		if self.hasFoundFit(bidLevel, psHand):
+		if self.hasFoundFit(psHand):
 			myLTs = self.countLosingTricks()
 			if self.pLosingCount == 0:
 				if isOpener:
@@ -196,7 +196,7 @@ class NormalBidding(Convention):
 		"""Return an opening hand's normal bidding bid"""
 		pts = self.hand.getTotalPoints()
 		if ((pts >= self.minOpenPts) and (pts <= self.maxOpenPts) and 
-				(not self.hasFoundFit(psBid, psHand))):
+				(not self.hasFoundFit(psHand))):
 			print "number of suits bid = ", len(self.mySuitsBid)
 			bestSuit = self.hand.findBestSuit()
 			secondSuit = self.hand.findSecondSuit()
@@ -250,14 +250,14 @@ class NormalBidding(Convention):
 			if len(self.myBids) == 0:
 				if pts >= self.ntRespPts:
 					return Bid(5, self.nextBidLevel(bidLevel, 5))
-				elif (not self.hasFoundFit(psBid, psHand)):
+				elif (not self.hasFoundFit(psHand)):
 					return Bid(bestSuit[0], 
 							   self.nextBidLevel(bidLevel, bestSuit[0]))
 				else:
 					return Bid(0,0)
 			else:
 				if (len(self.mySuits) == 0 and 
-						(not self.hasFoundFit(psBid, psHand))):
+						(not self.hasFoundFit(psHand))):
 					return Bid(bestSuit[0],
 							   self.nextBidLevel(bidLevel, bestSuit[0]))
 				elif (len(self.mySuits) != 0 and
@@ -266,7 +266,7 @@ class NormalBidding(Convention):
 					return Bid(bestSuit[0],
 							   self.nextBidLevel(bidLevel, bestSuit[0]))
 				elif (len(self.mySuits) != 0 and
-						(not self.hasFoundFit(psBid, psHand)) and
+						(not self.hasFoundFit(psHand)) and
 						bestSuit[1] < 6):
 					bailBid = self.bidBailOut(psBid, psHand)
 					totalPts = pts + (psHand.info["minPoints"] +

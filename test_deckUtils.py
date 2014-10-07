@@ -5,7 +5,27 @@ from DeckUtils import Bid
 import unittest
 
 
-class TestHandFunctions(unittest.TestCase):
+class TestBidHistory(unittest.TestCase):
+
+	def setUp(self):
+		self.bh = BidHistory()
+		self.bh.pastBids = [[Bid(0,0), Bid(0,0)], [Bid(0,0)], 
+							[Bid(1,1)], [Bid(0,0)]]
+		self.bh.bidPosition = 1
+		self.bh.numBids = 5
+	
+	def test_isBiddingFinished(self):
+		self.assertFalse(self.bh.isBiddingFinished())
+		self.bh.pastBids[self.bh.bidPosition].append(Bid(0,0))
+		self.bh.bidPosition += 1
+		self.assertTrue(self.bh.isBiddingFinished())
+	
+	def test_addBid(self):
+		self.bh.addBid(Bid(0,0))
+		self.assertEqual(self.bh.pastBids[1][1], Bid(0,0))
+				
+
+class TestHand(unittest.TestCase):
 
 	def setUp(self):
 		self.h = Hand()
@@ -42,7 +62,7 @@ class TestHandFunctions(unittest.TestCase):
 		self.assertEqual(self.h.findSecondSuit(), (2,4))
 
 
-class TestDeckFunctions(unittest.TestCase):
+class TestDeck(unittest.TestCase):
 	
 	def setUp(self):
 		self.d = Deck()
