@@ -59,7 +59,7 @@ class Convention(object):
 		else:
 			return False
 	
-	def bidBailOut(self, psBid, psHand):
+	def bidBailOut(self, bidLevel, psHand):
 		"""Return a bailing bid when no fit has been found."""
 		pBest = psHand.info["bestSuit"]
 		pSecond = psHand.info["secondSuit"]
