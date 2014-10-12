@@ -38,23 +38,23 @@ class Convention(object):
 			return bidLevel.level + 1
 	
 	def hasFoundFit(self, psHand):
-		"""Check whether a fit has been found."""
+		"""Return True if a fit has been found, else return False."""
 		#print "checking for fit"
 		if psHand.info["fitSuit"] != 0:
-			print "(Previously) found fit in", psHand.info["fitSuit"]
+			#print "(Previously) found fit in", psHand.info["fitSuit"]
 			return True
 		pBL = psHand.info["bestSuitLength"]
 		if self.hand.getSuitLength(psHand.info["bestSuit"]) + pBL >= 8:
 			psHand.info["fitSuit"] = psHand.info["bestSuit"]
-			print "Found a fit in", psHand.info["bestSuit"]
+			#print "Found a fit in", psHand.info["bestSuit"]
 			return True
 		elif self.hand.getSuitLength(psHand.info["secondSuit"]) >= 4:
 			psHand.info["fitSuit"] = psHand.info["secondSuit"]
-			print "Found a fit in", psHand.info["secondSuit"]
+			#print "Found a fit in", psHand.info["secondSuit"]
 			return True
 		elif self.hand.getSuitLength(psHand.info["thirdSuit"]) >= 4:
 			psHand.info["fitSuit"] = psHand.info["thirdSuit"]
-			print "Found a fit in", psHand.info["thirdSuit"]			
+			#print "Found a fit in", psHand.info["thirdSuit"]			
 			return True
 		else:
 			return False
