@@ -146,8 +146,6 @@ class NormalBidding(Convention):
 		"""Interpret partner's normal bidding bid."""
 		if psHand.info["numBids"] == 0:
 			return self.interpretFirstBid(psBid, isPOpener, psHand)
-		elif psHand.info["numBids"] == 1:
-			return self.interpretSecondBid(psBid, isPOpener, psHand)
 		else:
 			return self.interpretFurtherBids()
 		
@@ -168,9 +166,10 @@ class NormalBidding(Convention):
 				return False
 		elif (not isPOpener):
 			if psBid.level == 0:
-				psHand.info["maxPoints"] = self.minRespPts - 1			
+				psHand.info["maxPoints"] = self.minRespPts - 1
+				return True			
 			elif psBid.suit != 5:
-				psHand.info["maxPoints"] = self.maxRespPts
+				psHand.info["maxPoints"] = self.ntRespPts - 1
 				psHand.info["minPoints"] = self.minRespPts
 				psHand.info["bestSuit"] = psBid.suit
 				psHand.info["bestSuitLength"] = 4
@@ -186,7 +185,7 @@ class NormalBidding(Convention):
 	def interpretFurtherBids(self):
 		"""Interpret further normal bidding bids."""
 		#placeholder
-		return Bid(0,0)
+		return True
 
 	def getOpenersBid(self, psBid, bidLevel, psHand):
 		"""Return an opening hand's normal bidding bid"""
