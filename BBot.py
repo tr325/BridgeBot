@@ -68,6 +68,7 @@ class Table(object):
 				self.bidHist.printBidding()
 				break
 
+
 class BidBot(object):
 	"""Class to carry out the bidding for a hand."""
 	
@@ -101,18 +102,18 @@ class BidBot(object):
 		return Bid(0,0)
 	
 	def addPartnersBid(self, pBid, isPOpener):
-		"""Adds information from partner's bid."""
+		"""Interprets information from partner's bid."""
 		self.pPreviousBid = pBid
 		if isPOpener and pBid.level != 0:
 			self.isOpener = False
 		for conv in self.conventions:
 			# evaluates bids from possible list of conventions,
 			# updating pshandinfo
-			if (not conv.interpretPsBid(pBid, isPOpener, self.psHand) ):
+			if (not conv.interpretPsBid(pBid, isPOpener, self.psHand)):
 				# removes conventions if bidding has ruled them out 
 				#(ie. if opening bid is 1s, the Weak2s convention returns False)
 				self.conventions.remove(conv)
-			
+		self.psHand.info["numBids"] += 1
 
 #t = Table()
 #t.bidding()
