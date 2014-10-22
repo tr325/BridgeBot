@@ -49,13 +49,13 @@ class Table(object):
 	def bidding(self):
 		"""Gets the bidding for the table."""
 		i = 0
+		print "Press any key to retrieve the next bid"
 		while (True):
 			pNum = (i % 4) # ensures correct looping of players
 			i += 1
 			raw_input("")
 			currentBid = self.players[pNum].bid(self.bidLevel)
 			print "Player ", pNum, ": ", currentBid
-			print ""
 			if currentBid.level != 0:
 				self.bidLevel = currentBid
 				self.partners[pNum].addPartnersBid(currentBid, 
@@ -115,8 +115,6 @@ class BidBot(object):
 				self.conventions.remove(conv)
 		self.psHand.info["numBids"] += 1
 
-#t = Table()
-#t.bidding()
 
 
 

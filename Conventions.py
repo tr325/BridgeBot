@@ -86,8 +86,7 @@ class LosingTrickCount(Convention):
 				self.pLosingCount = 18 - bidLevel.level - 9
 			else: 
 				# partner assumes 7 losers in this hand
-				self.pLosingCount = 18 - bidLevel.level - 7
-			
+				self.pLosingCount = 18 - bidLevel.level - 7			
 			return True
 		else:
 			return True
@@ -120,12 +119,10 @@ class LosingTrickCount(Convention):
 					#print "Assume p has 7 losers"
 					self.pLosingCount = 7
 			maxBidLevel = 18 - myLTs - self.pLosingCount
-			#print "I have ", myLTs, "losing tricks, and p has ", self.pLosingCount
-			#print "Bid up to ", maxBidLevel
-			#print "Next bid level is ", self.nextBidLevel(bidLevel, psHand.info["fitSuit"])
 			if maxBidLevel >= self.nextBidLevel(bidLevel, 
-			                                    psHand.info["fitSuit"]):
-				self.myBids.append(Bid(psHand.info["fitSuit"], maxBidLevel))
+			                                   psHand.info["fitSuit"]):
+				self.myBids.append(Bid(psHand.info["fitSuit"], 
+								   maxBidLevel))
 				return Bid(psHand.info["fitSuit"], maxBidLevel)
 			else:
 				self.myBids.append(Bid(0,0))
