@@ -69,24 +69,64 @@ class Convention(object):
 		else:
 			return Bid(5, self.nextBidLevel(bidLevel, 5))
 
+######################################################################
+class StrongNTStayman(Convention):
+	"""Convention class for strong NT opening bids and the resulting 
+	stayman bidding.
+	"""
+	
+	minOpenPts = 16
+	maxOpenPts = 19
+	
+	def interpretPsBid(self, psBid, isPOpener, psHand):
+		"""Populates psHand class with information gained from the 
+		partner's NT/staymen bid. 
+		"""
+		if (isPopener):
+			return self.interpretOpenersBid(self, psBid, psHand)
+		else:
+			return self.interpretRespondersBid(self, psBid, psHand)
+		
+	def interpretOpenersBid(self, openersBid, openersHandInfo):
+		"""Interprets an opener's nt/staymen bid"""
+		if (openersHandInfo.info["numBids"] == 0 and 
+				openersBid == Bid(5,1)):
+			openersHandInfo.info["minPoints"] = minOpenPts
+			openersHandInfo.info["maxPoints"] = maxOpenPts
+			return True
+		if (psHand.info["numBids"] == 1 and 
+				(self.myBids[0] == Bid(1,2) or 
+				 self.myBids[0] == Bid(2,2)):
+			openersHandInfo.info["bestSuit"] = openersBid.suit
+			openersHandInfo.info["bestSuitLength"] = 4
+			return True
+		else:
+			return False
+			
+	def interpretRespondersBid(self, respBid, respHandInfo):
+		"""Interprets a responder's nt/staymen bid"""
+		pass
+			
+	
+
 class LosingTrickCount(Convention):
 	"""Convention class for Losing Trick Count."""	
 	pLosingCount = 0
 	pHasBidLTC = False
 	
-	def interpretPsBid(self, bidLevel, isPOpener, psHand):
+	def interpretPsBid(self, psBid, isPOpener, psHand):
 		"""Interpret partner's losing trick count bid."""
 		fitFound = self.hasFoundFit(psHand)
-		if (fitFound and bidLevel.suit == psHand.info["fitSuit"] and 
+		if (fitFound and psBid.suit == psHand.info["fitSuit"] and 
 		        (not self.pHasBidLTC)):
 		   	if (not self.pHasBidLTC) and self.pLosingCount != 0:
 		   		self.pHasBidLTC = True
 			if isPOpener:
 				# partner assumes 9 losers in this hand
-				self.pLosingCount = 18 - bidLevel.level - 9
+				self.pLosingCount = 18 - psBid.level - 9
 			else: 
 				# partner assumes 7 losers in this hand
-				self.pLosingCount = 18 - bidLevel.level - 7			
+				self.pLosingCount = 18 - psBid.level - 7			
 			return True
 		else:
 			return True
@@ -141,7 +181,7 @@ class NormalBidding(Convention):
 	
 	def interpretPsBid(self, psBid, isPOpener, psHand):
 		"""Interpret partner's normal bidding bid."""
-		if psHand.info["numBids"] == 0:
+		if psHand.info["numBids"] == 0:	#incremented after interpreted
 			return self.interpretFirstBid(psBid, isPOpener, psHand)
 		else:
 			return self.interpretFurtherBids(psBid, psHand)
@@ -211,11 +251,13 @@ class NormalBidding(Convention):
 		"""Return an opening hand's normal bidding bid"""
 		pts = self.hand.getTotalPoints()
 		if ((pts >= self.minOpenPts) and (pts <= self.maxOpenPts) and 
-				(not self.hasFoundFit(psHand))):
+				(not (self.hasFoundFit(psHand) and 
+				 psHand.info["minPoints"] < 12))):
 			#print "number of suits bid = ", len(self.mySuitsBid)
 			bestSuit = self.hand.findBestSuit()
 			secondSuit = self.hand.findSecondSuit()
-			#thirdSuit = self.hand.findThirdSuit()  # Haven't written this yet!
+			#thirdSuit = self.hand.findThirdSuit()  
+			# Haven't written that ^ yet!
 			if len(self.mySuitsBid) == 0:
 				return Bid(bestSuit[0], self.nextBidLevel(bidLevel, 
 														  bestSuit[0]))
@@ -223,19 +265,19 @@ class NormalBidding(Convention):
 				if (self.mySuitsBid[0] == bestSuit[0] and 
 						bestSuit[1] < 6):
 					return Bid(secondSuit[0], 
-							 self.nextBidLevel(bidLevel, secondSuit[0]))
+							self.nextBidLevel(bidLevel, secondSuit[0]))
 				elif (self.mySuitsBid[0] == bestSuit[0] and 
 						bestSuit[1] >= 6):
 					return Bid(bestSuit[0], 
-							   self.nextBidLevel(bidLevel, bestSuit[0]))
+							  self.nextBidLevel(bidLevel, bestSuit[0]))
 				elif (self.mySuitsBid[0] == secondSuit[0] and 
 						secondSuit[1] < 6):
 					return Bid(bestSuit[0], 
-							   self.nextBidLevel(bidLevel, bestSuit[0]))
+							  self.nextBidLevel(bidLevel, bestSuit[0]))
 				elif (self.mySuitsBid[0] == secondSuit[0] and 
 						secondSuit[1] >= 6):
-					return Bid(secondSuit[0], self.nextBidLevel(bidLevel, 
-																secondSuit[0]))
+					return Bid(secondSuit[0], 
+							self.nextBidLevel(bidLevel,	secondSuit[0]))
 			elif len(self.mySuitsBid) == 2:
 				# two suits have been bid and no fit found
 				bailBid = self.bidBailOut(psBid, psHand)
@@ -267,22 +309,19 @@ class NormalBidding(Convention):
 					return Bid(5, self.nextBidLevel(bidLevel, 5))
 				elif (not self.hasFoundFit(psHand)):
 					return Bid(bestSuit[0], 
-							   self.nextBidLevel(bidLevel, bestSuit[0]))
+							  self.nextBidLevel(bidLevel, bestSuit[0]))
 				else:
 					return Bid(0,0)
-			else:
-				if (len(self.mySuitsBid) == 0 and 
-						(not self.hasFoundFit(psHand))):
+			elif (len(self.myBids) != 0 and 
+					(not self.hasFoundFit(psHand))):
+				if (len(self.mySuitsBid) == 0):
 					return Bid(bestSuit[0],
-							   self.nextBidLevel(bidLevel, bestSuit[0]))
-				elif (len(self.mySuitsBid) != 0 and
-						(not self.hasFoundFit(psHand)) and
-						bestSuit[1] >= 6):
+							  self.nextBidLevel(bidLevel, bestSuit[0]))
+				elif (len(self.mySuitsBid) != 0 and	bestSuit[1] >= 6):
 					return Bid(bestSuit[0],
-							   self.nextBidLevel(bidLevel, bestSuit[0]))
-				elif (len(self.mySuitsBid) != 0 and
-						(not self.hasFoundFit(psHand)) and
-						bestSuit[1] < 6):
+							  self.nextBidLevel(bidLevel, bestSuit[0]))
+				elif (len(self.mySuitsBid) != 0 and	bestSuit[1] < 6 
+						and pts < 12):
 					bailBid = self.bidBailOut(psBid, psHand)
 					totalPts = pts + (psHand.info["minPoints"] +
 									  psHand.info["maxPoints"])/2.0
@@ -294,6 +333,8 @@ class NormalBidding(Convention):
 						return Bid(0,0)
 				else:
 					return Bid(0,0)
+			else:
+				return Bid(0,0)
 					
 			
 			 

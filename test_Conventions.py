@@ -25,12 +25,23 @@ class test_Convention(unittest.TestCase):
 		self.assertEqual(self.conv.nextBidLevel(Bid(1,1),1), 2)
 		self.assertEqual(self.conv.nextBidLevel(Bid(1,1),2), 1)
 	
-	def test_hasFoundFit(self):
+	def test_hasFoundFit_fitSuit(self):
 		self.assertTrue(self.conv.hasFoundFit(self.partner_hand_info))
+		
+	def test_hasFoundFit_six_and_three(self):	
 		self.partner_hand_info.info["fitSuit"] = 0
 		self.assertTrue(self.conv.hasFoundFit(self.partner_hand_info))
+		
+	def test_hasFoundFit_four_and_four(self):
+		self.partner_hand_info.info["fitSuit"] = 0
 		self.partner_hand_info.info["bestSuitLength"] = 4
 		self.assertTrue(self.conv.hasFoundFit(self.partner_hand_info))
+		
+	def test_hasFoundFit_no_fit(self):
+		self.partner_hand_info.info["fitSuit"] = 0
+		self.partner_hand_info.info["bestSuitLength"] = 4
+		self.partner_hand_info.info["secondSuit"] = 4
+		self.assertFalse(self.conv.hasFoundFit(self.partner_hand_info))
 	
 	def test_bidBailOut(self):
 		self.partner_hand_info.info["bestSuit"] = 4
@@ -218,6 +229,17 @@ class test_NormalBidding(unittest.TestCase):
 		second_nt_response_no_fit = self.normal_responder.getBid(
 					Bid(1,2), Bid(1,2), False, self.openers_hand_info)
 		self.assertEqual(second_nt_response_no_fit, Bid(2,2))
+		
+	def test_getRespondersBid_second_nt_points_with_fit(self):
+		#  this will be handled by GameForcing convention
+		self.openers_hand_info.info["bestSuit"] = 2
+		self.openers_hand_info.info["secondSuit"] = 1
+		self.openers_hand_info.info["bestSuitLength"] = 4
+		self.responding_hand.cards[1] = ["A", "9"]
+		self.normal_responder.myBids.append(Bid(5,1))
+		second_nt_response_with_fit = self.normal_responder.getBid(
+					Bid(1,2), Bid(1,2), False, self.openers_hand_info)
+		self.assertEqual(second_nt_response_with_fit, Bid(0,0))
 	
 	def test_getRespondersBid_second_bid_sixtimer(self):
 		self.openers_hand_info.info["bestSuit"] = 1

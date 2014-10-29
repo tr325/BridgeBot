@@ -49,7 +49,7 @@ class Table(object):
 	def bidding(self):
 		"""Gets the bidding for the table."""
 		i = 0
-		print "Press any key to retrieve the next bid"
+		#print "Press any key to retrieve the next bid"
 		while (True):
 			pNum = (i % 4) # ensures correct looping of players
 			i += 1
